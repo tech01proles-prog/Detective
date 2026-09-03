@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { X, MessageCircle } from 'lucide-react';
 import { NPC, DialogueNode } from '../types';
 
