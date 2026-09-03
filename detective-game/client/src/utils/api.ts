@@ -1,4 +1,4 @@
-import { Scenario, GameState, Clue, Item } from '../types';
+import { Scenario, GameState } from '../types';
 
 const API_BASE = '/api';
 

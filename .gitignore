@@ -1,48 +1,30 @@
 ```
+# Database
+detective-game/server/game.db
+
+# TypeScript build info
+detective-game/client/tsconfig.tsbuildinfo
+
 # Dependencies
 node_modules/
 
-# Build outputs
-dist/
-build/
-target/
-
-# Environment variables
+# Environment
 .env
 .env.local
 *.env.*
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+# Editors
+.vscode/
+.idea/
 
 # Logs
 *.log
 
-# IDE specific
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS generated
-.DS_Store
-Thumbs.db
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Temporary files
+# Temp files
 *.tmp
-*.temp
+*.swp
 
-# MyPy cache
-.mypy_cache/
-
-# Pytest cache
-.pytest_cache/
+# Build artifacts
+dist/
+build/
 ```

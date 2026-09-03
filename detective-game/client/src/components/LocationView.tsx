@@ -1,4 +1,3 @@
-import React from 'react';
 import { MapPin, Hand, MessageCircle } from 'lucide-react';
 import { Location, NPC, Interaction } from '../types';
 import { clsx } from '../utils/api';

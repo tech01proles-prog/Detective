@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { FileText, Upload, Download, Plus } from 'lucide-react';
 
 interface MainMenuProps {
@@ -17,7 +18,7 @@ export function MainMenu({
   saves,
   scenarioTitles 
 }: MainMenuProps) {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
