@@ -1,0 +1,340 @@
+{
+  "id": "demo-murder-at-the-dock",
+  "title": "Murder at the Dock",
+  "author": "Game Master",
+  "description": "A wealthy merchant has been found dead at the docks. Investigate the crime scene, interrogate suspects, and find the killer before they escape.",
+  "minCluesForAccusation": 3,
+  "initialGameState": {
+    "currentLocationId": "dock-crime-scene",
+    "inventory": [],
+    "clues": [],
+    "visitedLocations": ["dock-crime-scene"],
+    "completedInteractions": [],
+    "dialogueStates": {},
+    "currentTime": 480,
+    "maxTime": 1200,
+    "gameStatus": "playing",
+    "npcLocations": {}
+  },
+  "locations": [
+    {
+      "id": "dock-crime-scene",
+      "name": "Dock Crime Scene",
+      "description": "The body of Marcus Blackwood lies on the wet dock. Police tape flutters in the cold wind.",
+      "mapPosition": { "x": 50, "y": 50 },
+      "connections": ["police-station", "blackwood-mansion", "the-rusty-anchor"],
+      "interactions": [
+        {
+          "id": "examine-body",
+          "name": "Examine Body",
+          "description": "Look closely at the victim for clues",
+          "type": "examine",
+          "result": {
+            "message": "The victim has a single stab wound to the chest. There's a distinctive ring mark on his finger - recently removed.",
+            "cluesGained": ["stab-wound", "missing-ring"],
+            "timePassed": 20
+          }
+        },
+        {
+          "id": "search-area",
+          "name": "Search Surroundings",
+          "description": "Look around the crime scene for evidence",
+          "type": "examine",
+          "result": {
+            "message": "You find footprints leading away from the body and a torn piece of fabric caught on a crate.",
+            "cluesGained": ["footprints", "torn-fabric"],
+            "timePassed": 25
+          }
+        }
+      ]
+    },
+    {
+      "id": "police-station",
+      "name": "Police Station",
+      "description": "The local precinct. Detective Morrison holds the official case files.",
+      "mapPosition": { "x": 20, "y": 30 },
+      "connections": ["dock-crime-scene", "city-hall"],
+      "npcs": [
+        {
+          "id": "morrison",
+          "name": "Detective Morrison",
+          "description": "Grizzled veteran cop with 20 years on the force",
+          "portrait": "",
+          "locationId": "police-station",
+          "dialogueTree": {
+            "id": "morrison-greet",
+            "text": "Another day, another body. What do you want, detective?",
+            "speaker": "Morrison",
+            "choices": [
+              {
+                "id": "ask-official-report",
+                "text": "What does the official report say?",
+                "nextNodeId": "morrison-report"
+              },
+              {
+                "id": "ask-suspects",
+                "text": "Who are the main suspects?",
+                "nextNodeId": "morrison-suspects"
+              },
+              {
+                "id": "bye-morrison",
+                "text": "Thanks, that's all for now.",
+                "nextNodeId": "morrison-bye"
+              }
+            ]
+          }
+        }
+      ],
+      "interactions": [
+        {
+          "id": "read-case-file",
+          "name": "Read Case File",
+          "description": "Review the official police documentation",
+          "type": "examine",
+          "result": {
+            "message": "The case file contains witness statements and preliminary findings.",
+            "cluesGained": ["case-file"],
+            "timePassed": 30
+          }
+        }
+      ]
+    },
+    {
+      "id": "blackwood-mansion",
+      "name": "Blackwood Mansion",
+      "description": "The victim's opulent estate. His widow Victoria sits in mourning.",
+      "mapPosition": { "x": 70, "y": 20 },
+      "connections": ["dock-crime-scene", "bank"],
+      "npcs": [
+        {
+          "id": "victoria",
+          "name": "Victoria Blackwood",
+          "description": "The victim's young wife, dressed in black",
+          "portrait": "",
+          "locationId": "blackwood-mansion",
+          "dialogueTree": {
+            "id": "victoria-greet",
+            "text": "*sobbing* Please... leave me be. I've lost everything...",
+            "speaker": "Victoria",
+            "choices": [
+              {
+                "id": "condolences",
+                "text": "My condolences. I need to ask you some questions.",
+                "nextNodeId": "victoria-questions"
+              },
+              {
+                "id": "ask-alibi",
+                "text": "Where were you last night?",
+                "nextNodeId": "victoria-alibi"
+              },
+              {
+                "id": "bye-victoria",
+                "text": "I'll let you grieve in peace.",
+                "nextNodeId": "victoria-bye"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-rusty-anchor",
+      "name": "The Rusty Anchor",
+      "description": "A dimly lit pub where dock workers drink away their troubles.",
+      "mapPosition": { "x": 30, "y": 70 },
+      "connections": ["dock-crime-scene"],
+      "npcs": [
+        {
+          "id": "bartender-joe",
+          "name": "Joe the Bartender",
+          "description": "Has seen everything in this city",
+          "portrait": "",
+          "locationId": "the-rusty-anchor",
+          "dialogueTree": {
+            "id": "joe-greet",
+            "text": "What'll it be? ...Oh, you're one of those detective types.",
+            "speaker": "Joe",
+            "choices": [
+              {
+                "id": "buy-drink",
+                "text": "Buy a drink and ask about Blackwood",
+                "nextNodeId": "joe-info"
+              },
+              {
+                "id": "show-badge",
+                "text": "Show your badge and demand information",
+                "nextNodeId": "joe-reluctant"
+              },
+              {
+                "id": "bye-joe",
+                "text": "Never mind.",
+                "nextNodeId": "joe-bye"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "bank",
+      "name": "First National Bank",
+      "description": "Where Marcus Blackwood kept his considerable fortune.",
+      "mapPosition": { "x": 80, "y": 60 },
+      "connections": ["blackwood-mansion", "city-hall"],
+      "npcs": [
+        {
+          "id": "manager-stirling",
+          "name": "Mr. Stirling",
+          "description": "Bank manager, nervous and sweating",
+          "portrait": "",
+          "locationId": "bank",
+          "dialogueTree": {
+            "id": "stirling-greet",
+            "text": "Oh dear, oh dear. This is most unfortunate. How can I help?",
+            "speaker": "Stirling",
+            "choices": [
+              {
+                "id": "ask-finances",
+                "text": "Tell me about Blackwood's finances",
+                "nextNodeId": "stirling-money"
+              },
+              {
+                "id": "ask-debts",
+                "text": "Did he have any debts or enemies?",
+                "nextNodeId": "stirling-enemies"
+              },
+              {
+                "id": "bye-stirling",
+                "text": "Thank you for your time.",
+                "nextNodeId": "stirling-bye"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "city-hall",
+      "name": "City Hall",
+      "description": "The seat of local government and records.",
+      "mapPosition": { "x": 50, "y": 30 },
+      "connections": ["police-station", "bank"],
+      "interactions": [
+        {
+          "id": "check-records",
+          "name": "Check Public Records",
+          "description": "Search for relevant documents",
+          "type": "examine",
+          "result": {
+            "message": "You find property records and business licenses related to Blackwood's enterprises.",
+            "cluesGained": ["property-records"],
+            "timePassed": 40
+          }
+        }
+      ]
+    }
+  ],
+  "npcs": [
+    {
+      "id": "morrison",
+      "name": "Detective Morrison",
+      "description": "Grizzled veteran cop with 20 years on the force",
+      "locationId": "police-station",
+      "dialogueTree": {
+        "id": "morrison-greet",
+        "text": "Another day, another body. What do you want, detective?",
+        "speaker": "Morrison",
+        "choices": [
+          { "id": "ask-official-report", "text": "What does the official report say?", "nextNodeId": "morrison-report" },
+          { "id": "ask-suspects", "text": "Who are the main suspects?", "nextNodeId": "morrison-suspects" },
+          { "id": "bye-morrison", "text": "Thanks, that's all for now.", "nextNodeId": "morrison-bye" }
+        ]
+      }
+    },
+    {
+      "id": "victoria",
+      "name": "Victoria Blackwood",
+      "description": "The victim's young wife",
+      "locationId": "blackwood-mansion",
+      "dialogueTree": {
+        "id": "victoria-greet",
+        "text": "*sobbing* Please... leave me be.",
+        "speaker": "Victoria",
+        "choices": [
+          { "id": "condolences", "text": "My condolences. I need to ask questions.", "nextNodeId": "victoria-questions" },
+          { "id": "ask-alibi", "text": "Where were you last night?", "nextNodeId": "victoria-alibi" },
+          { "id": "bye-victoria", "text": "I'll let you grieve.", "nextNodeId": "victoria-bye" }
+        ]
+      }
+    },
+    {
+      "id": "bartender-joe",
+      "name": "Joe the Bartender",
+      "description": "Has seen everything",
+      "locationId": "the-rusty-anchor",
+      "dialogueTree": {
+        "id": "joe-greet",
+        "text": "What'll it be?",
+        "speaker": "Joe",
+        "choices": [
+          { "id": "buy-drink", "text": "Buy a drink and ask about Blackwood", "nextNodeId": "joe-info" },
+          { "id": "bye-joe", "text": "Never mind.", "nextNodeId": "joe-bye" }
+        ]
+      }
+    },
+    {
+      "id": "manager-stirling",
+      "name": "Mr. Stirling",
+      "description": "Nervous bank manager",
+      "locationId": "bank",
+      "dialogueTree": {
+        "id": "stirling-greet",
+        "text": "Oh dear, this is unfortunate.",
+        "speaker": "Stirling",
+        "choices": [
+          { "id": "ask-finances", "text": "Tell me about Blackwood's finances", "nextNodeId": "stirling-money" },
+          { "id": "bye-stirling", "text": "Thank you.", "nextNodeId": "stirling-bye" }
+        ]
+      }
+    }
+  ],
+  "clues": [
+    { "id": "stab-wound", "name": "Stab Wound", "description": "Single precise stab wound to the chest, suggesting a professional kill.", "type": "text", "content": "Professional stabbing technique", "tags": ["violence", "method"] },
+    { "id": "missing-ring", "name": "Missing Ring", "description": "A distinctive family ring was stolen from the victim's finger.", "type": "text", "content": "Ring was taken after death", "tags": ["theft", "motive"] },
+    { "id": "footprints", "name": "Footprints", "description": "Large boot prints leading away from the scene.", "type": "photo", "content": "boot-prints.jpg", "tags": ["physical", "escape"] },
+    { "id": "torn-fabric", "name": "Torn Fabric", "description": "Piece of expensive-looking blue fabric caught on a crate.", "type": "text", "content": "Blue silk fabric", "tags": ["clothing", "suspect"] },
+    { "id": "case-file", "name": "Official Case File", "description": "Police documentation of the crime.", "type": "document", "content": "Case #4721: Marcus Blackwood", "tags": ["official", "documentation"] },
+    { "id": "property-records", "name": "Property Records", "description": "Documents showing Blackwood's extensive holdings.", "type": "document", "content": "Property deeds and titles", "tags": ["financial", "motive"] }
+  ],
+  "items": [],
+  "suspects": [
+    {
+      "id": "victoria",
+      "name": "Victoria Blackwood",
+      "description": "The victim's wife who stands to inherit everything.",
+      "motive": "Inheritance",
+      "alibi": "Claims she was sleeping",
+      "isGuilty": false,
+      "requiredCluesForAccusation": ["missing-ring", "torn-fabric"]
+    },
+    {
+      "id": "business-rival",
+      "name": "Thomas Greer",
+      "description": "Business competitor who was bankrupted by Blackwood.",
+      "motive": "Revenge",
+      "alibi": "Was at the Rusty Anchor",
+      "isGuilty": true,
+      "requiredCluesForAccusation": ["stab-wound", "footprints", "case-file"]
+    },
+    {
+      "id": "corrupt-cop",
+      "name": "Officer Chen",
+      "description": "Was being blackmailed by Blackwood.",
+      "motive": "Silence",
+      "alibi": "On patrol",
+      "isGuilty": false,
+      "requiredCluesForAccusation": ["stab-wound", "property-records"]
+    }
+  ],
+  "mapImage": ""
+}
