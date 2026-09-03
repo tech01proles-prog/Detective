@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, MapPin } from 'lucide-react';
 import { Location } from '../types';
 import { clsx } from '../utils/api';
