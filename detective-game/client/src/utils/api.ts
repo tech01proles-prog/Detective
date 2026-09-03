@@ -1,6 +1,6 @@
 import { Scenario, GameState } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = 'http://138.16.177.245:3001/api';
 
 export const api = {
   async fetchScenarios(): Promise<Array<{ id: string; title: string; author: string; description: string; created_at: string }>> {
@@ -145,6 +145,25 @@ export const storage = {
     localStorage.setItem(key, JSON.stringify(scenario));
   }
 };
+
+// Helper functions for App.tsx
+export async function fetchScenarios() {
+  return api.fetchScenarios();
+}
+
+export async function fetchScenario(id: string) {
+  return api.fetchScenario(id);
+}
+
+export async function loadGameSave(saveId: string) {
+  // Сначала пробуем загрузить из localStorage
+  const localData = localStorage.getItem(saveId);
+  if (localData) {
+    return JSON.parse(localData);
+  }
+  // Если нет, пробуем с сервера
+  return api.loadGame(saveId);
+}
 
 export function formatTime(minutes: number): string {
   const hours = Math.floor(minutes / 60);
