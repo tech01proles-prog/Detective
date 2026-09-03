@@ -39,7 +39,7 @@ dist/
 build/
 target/
 
-# Temporary files
+# Temp files
 *.tmp
 *.temp
 

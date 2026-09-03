@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { FileText, Upload, Download, Plus } from 'lucide-react';
 
+
 interface MainMenuProps {
   onNewGame: () => void;
   onLoadGame: (saveId: string) => void;
