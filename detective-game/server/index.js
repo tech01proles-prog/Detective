@@ -305,8 +305,157 @@ app.get('/api/health', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🔍 Detective Game Server running on port ${PORT}`);
-    console.log(`📁 Uploads available at: http://localhost:${PORT}/uploads`);
+    console.log(`📁 Uploads available at: http://0.0.0.0:${PORT}/uploads`);
     console.log(`🗄️  Database: ${path.join(__dirname, 'game.db')}`);
+    
+    // Load demo scenario if not exists
+    const demoScenarioId = 'murder-at-the-dock';
+    const existing = db.prepare('SELECT id FROM scenarios WHERE id = ?').get(demoScenarioId);
+    if (!existing) {
+        const demoScenario = {
+            id: demoScenarioId,
+            title: 'Murder at the Dock',
+            author: 'System',
+            description: 'A classic noir mystery. Find the killer before they escape!',
+            initialGameState: {
+                currentLocationId: 'detective-office',
+                inventory: [],
+                clues: [],
+                visitedLocations: [],
+                completedInteractions: [],
+                dialogueStates: {},
+                currentTime: 480, // 8:00 AM
+                maxTime: 1320, // 10:00 PM
+                gameStatus: 'playing',
+                npcLocations: {}
+            },
+            locations: [
+                {
+                    id: 'detective-office',
+                    name: 'Detective Office',
+                    description: 'Your cramped office. Rain streaks the window.',
+                    mapPosition: { x: 50, y: 50 },
+                    connections: ['dock', 'police-station'],
+                    interactions: []
+                },
+                {
+                    id: 'dock',
+                    name: 'The Dock',
+                    description: 'Crime scene. Body found near warehouse.',
+                    mapPosition: { x: 150, y: 50 },
+                    connections: ['detective-office', 'warehouse'],
+                    interactions: [
+                        {
+                            id: 'examine-body',
+                            name: 'Examine Body',
+                            description: 'Look closely at the victim',
+                            type: 'examine',
+                            result: {
+                                message: 'Victim has a stab wound. No wallet found.',
+                                cluesGained: ['stab-wound']
+                            }
+                        },
+                        {
+                            id: 'search-area',
+                            name: 'Search Area',
+                            description: 'Look for evidence around the body',
+                            type: 'examine',
+                            result: {
+                                message: 'You find footprints leading to the warehouse.',
+                                cluesGained: ['footprints']
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 'warehouse',
+                    name: 'Abandoned Warehouse',
+                    description: 'Dark and smelly. Something is hidden here.',
+                    mapPosition: { x: 250, y: 50 },
+                    connections: ['dock'],
+                    interactions: [
+                        {
+                            id: 'find-knife',
+                            name: 'Search Crates',
+                            description: 'Look through old crates',
+                            type: 'examine',
+                            result: {
+                                message: 'You find a bloody knife!',
+                                cluesGained: ['bloody-knife']
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 'police-station',
+                    name: 'Police Station',
+                    description: 'Busy precinct with officers everywhere.',
+                    mapPosition: { x: 50, y: 150 },
+                    connections: ['detective-office'],
+                    interactions: []
+                }
+            ],
+            npcs: [
+                {
+                    id: 'witness',
+                    name: 'Old Sailor',
+                    description: 'A witness who was nearby',
+                    dialogueTree: {
+                        start: {
+                            text: 'I saw someone running from the dock...',
+                            choices: [
+                                { text: 'Who was it?', nextNodeId: 'suspect-desc' },
+                                { text: 'Thanks', nextNodeId: 'end' }
+                            ]
+                        },
+                        'suspect-desc': {
+                            text: 'Wore a red jacket. Looked like Joe the bartender!',
+                            cluesGained: ['witness-testimony']
+                        },
+                        end: { text: '...' }
+                    },
+                    locationId: 'dock'
+                },
+                {
+                    id: 'bartender',
+                    name: 'Joe',
+                    description: 'Bartender at the nearby pub',
+                    dialogueTree: {
+                        start: {
+                            text: 'What do you want?',
+                            choices: [
+                                { text: 'Where were you last night?', nextNodeId: 'alibi' },
+                                { text: 'Nothing', nextNodeId: 'end' }
+                            ]
+                        },
+                        alibi: {
+                            text: 'I was working! Ask anyone!',
+                            cluesGained: ['joe-alibi']
+                        },
+                        end: { text: '...' }
+                    },
+                    locationId: 'police-station'
+                }
+            ],
+            clues: [
+                { id: 'stab-wound', name: 'Stab Wound', description: 'Victim was stabbed', type: 'text', content: 'Deep stab wound to the chest', tags: ['evidence'] },
+                { id: 'footprints', name: 'Footprints', description: 'Leading to warehouse', type: 'text', content: 'Large boot prints', tags: ['trace'] },
+                { id: 'bloody-knife', name: 'Bloody Knife', description: 'Found in warehouse', type: 'text', content: 'Kitchen knife with blood', tags: ['weapon'] },
+                { id: 'witness-testimony', name: 'Witness Testimony', description: 'Saw someone in red', type: 'text', content: 'Red jacket suspect', tags: ['testimony'] },
+                { id: 'joe-alibi', name: 'Joe Alibi', description: 'Claims he was working', type: 'text', content: 'Working at bar', tags: ['alibi'] },
+                { id: 'torn-fabric', name: 'Torn Fabric', description: 'Red fabric found on victim', type: 'text', content: 'Red cloth piece', tags: ['evidence'] }
+            ],
+            suspects: [
+                { id: 'joe', name: 'Joe (Bartender)', description: 'Had access to knife', isGuilty: true, requiredCluesForAccusation: ['bloody-knife', 'witness-testimony'] },
+                { id: 'rival', name: 'Business Rival', description: 'Had motive', isGuilty: false, requiredCluesForAccusation: [] }
+            ],
+            minCluesForAccusation: 3
+        };
+        
+        db.prepare(`INSERT INTO scenarios (id, title, author, description, content) VALUES (?, ?, ?, ?, ?)`)
+            .run(demoScenario.id, demoScenario.title, demoScenario.author, demoScenario.description, JSON.stringify(demoScenario));
+        console.log('✅ Demo scenario loaded: Murder at the Dock');
+    }
 });
