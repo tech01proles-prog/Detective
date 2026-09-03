@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { clsx } from '../utils/api';
 

@@ -1,25 +1,22 @@
 ```
+# TypeScript build artifacts
+*.tsbuildinfo
+
 # Dependencies
 node_modules/
-
-# Build outputs
-dist/
-build/
-target/
 
 # Environment variables
 .env
 .env.local
 *.env.*
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
 # Logs
 *.log
+
+# Coverage reports
+coverage/
+htmlcov/
+*.coverage
 
 # IDE specific
 .vscode/
@@ -27,22 +24,42 @@ __pycache__/
 *.swp
 *.swo
 
-# OS generated
+# OS specific
 .DS_Store
 Thumbs.db
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
+# Python cache (if any Python files exist in the project)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build outputs
+dist/
+build/
+target/
 
 # Temporary files
 *.tmp
 *.temp
 
-# MyPy cache
-.mypy_cache/
-
-# Pytest cache
-.pytest_cache/
+# Compression files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
 ```
