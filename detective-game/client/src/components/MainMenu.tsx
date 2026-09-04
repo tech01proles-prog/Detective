@@ -3,7 +3,7 @@ import { FileText, Upload, Download, Plus } from 'lucide-react';
 
 
 interface MainMenuProps {
-  onNewGame: () => void;
+  onNewGame: (scenarioId?: string) => void;
   onLoadGame: (saveId: string) => void;
   onImportScenario: (file: File) => void;
   scenarios: Array<{ id: string; title: string; author: string; description: string }>;
@@ -51,7 +51,7 @@ export function MainMenu({
             </h2>
 
             <button
-              onClick={onNewGame}
+              onClick={() => onNewGame()}
               className="w-full mb-4 py-3 px-4 bg-accent-gold hover:bg-yellow-600 text-noir-900 rounded-lg font-serif transition-colors flex items-center justify-center gap-2"
             >
               <Plus size={20} />
@@ -82,7 +82,7 @@ export function MainMenu({
                 scenarios.map(scenario => (
                   <button
                     key={scenario.id}
-                    onClick={onNewGame}
+                    onClick={() => onNewGame(scenario.id)}
                     className="w-full p-3 text-left bg-noir-800 hover:bg-noir-700 rounded-lg border border-noir-700 hover:border-accent-gold transition-all group"
                   >
                     <h3 className="font-serif text-accent-gold group-hover:text-yellow-400">

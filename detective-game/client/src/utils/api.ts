@@ -2,6 +2,14 @@ import { Scenario, GameState } from '../types';
 
 const API_BASE = 'http://138.16.177.245:3001/api';
 
+function uuidv4(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 export const api = {
   async fetchScenarios(): Promise<Array<{ id: string; title: string; author: string; description: string; created_at: string }>> {
     const response = await fetch(`${API_BASE}/scenarios`);
@@ -161,8 +169,29 @@ export async function loadGameSave(saveId: string) {
   if (localData) {
     return JSON.parse(localData);
   }
+  // Если это запрос списка сохранений
+  if (saveId === 'list') {
+    return api.fetchSaves();
+  }
   // Если нет, пробуем с сервера
   return api.loadGame(saveId);
+}
+
+export async function importScenarioFile(file: File) {
+  // Загружаем файл на сервер
+  const uploadResult = await api.uploadFile(file);
+  // Читаем файл как JSON и создаем сценарий
+  const fileContent = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target?.result as string);
+    reader.readAsText(file);
+  });
+  const scenario = JSON.parse(fileContent);
+  // Создаем сценарий на сервере
+  return api.createScenario({
+    ...scenario,
+    id: scenario.id || uuidv4()
+  });
 }
 
 export function formatTime(minutes: number): string {
