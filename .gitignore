@@ -1,61 +1,38 @@
-```gitignore
+```
+# Database files
+*.db
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
 # Dependencies
 node_modules/
+.venv/
+venv/
+__pycache__/
+
 # Build artifacts
 dist/
 build/
-# Environment
-.env
-.env.local
-.env.*
-# Editors
-.vscode/
-.idea/
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+target/
+
 # Logs
 *.log
-# Temp files
-*.tmp
+
+# Editor/IDE
+.vscode/
+.idea/
 *.swp
-*.swo
+*.tmp
+
 # OS
 .DS_Store
 Thumbs.db
-# Coverage
-coverage/
-htmlcov/
-.coverage
-# TypeScript/JavaScript
-*.tsbuildinfo
-.next/
-.nuxt/
-# Java
-target/
-*.class
-*.jar
-*.war
-# C/C++
-*.o
-*.obj
-*.a
-*.lib
-*.so
-*.dll
-*.dylib
-# Go
-*.exe
-*.test
-# Rust
-target/
-*.rlib
-# Gradle
-.gradle/
-# MyPy
-.mypy_cache/
-# PyTest
-.pytest_cache/
+
+# Python
+*.pyc
+*.pyo
+*.pyd
 ```

@@ -5,6 +5,11 @@ import Database from 'better-sqlite3';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import multer from 'multer';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3001;
@@ -13,8 +18,25 @@ const PORT = 3001;
 app.use(cors());
 app.use(bodyParser.json());
 
+// Multer setup for file uploads
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${uuidv4()}-${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
+
 // Инициализация БД
-const db = new Database('detective.db');
+const db = new Database(path.join(__dirname, 'detective.db'));
 
 // Создание таблиц
 db.exec(`
@@ -29,11 +51,24 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS saves (
     id TEXT PRIMARY KEY,
     scenario_id TEXT NOT NULL,
-    state TEXT NOT NULL,
+    player_name TEXT,
+    game_state TEXT NOT NULL,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(scenario_id) REFERENCES scenarios(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS uploaded_files (
+    id TEXT PRIMARY KEY,
+    original_name TEXT NOT NULL,
+    stored_name TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(uploadDir));
 
 // Стартовый сценарий (Демо-игра "Тень над городом")
 const defaultScenarioId = 'demo-noir-001';
@@ -452,8 +487,8 @@ app.listen(PORT, '0.0.0.0', () => {
             minCluesForAccusation: 3
         };
         
-        db.prepare(`INSERT INTO scenarios (id, title, author, description, content) VALUES (?, ?, ?, ?, ?)`)
-            .run(demoScenario.id, demoScenario.title, demoScenario.author, demoScenario.description, JSON.stringify(demoScenario));
+        db.prepare(`INSERT INTO scenarios (id, title, author, content) VALUES (?, ?, ?, ?)`)
+            .run(demoScenario.id, demoScenario.title, demoScenario.author, JSON.stringify(demoScenario));
         console.log('✅ Demo scenario loaded: Murder at the Dock');
     }
 });
