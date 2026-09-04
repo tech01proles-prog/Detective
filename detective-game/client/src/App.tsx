@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import MainMenu from './components/MainMenu';
-import GameLayout from './components/GameLayout';
+import { MainMenu } from './components/MainMenu';
+import { GameLayout } from './components/GameLayout';
 import { GameState, Scenario, Clue } from './types';
 import { fetchScenarios, fetchScenario, loadGameSave } from './utils/api';
 
@@ -114,16 +114,37 @@ function App() {
   }
 
   if (!gameState) {
-    return <MainMenu onStartGame={startNewGame} />;
+    return <MainMenu 
+      onNewGame={() => {}}
+      onLoadGame={() => {}}
+      onImportScenario={() => {}}
+      scenarios={[]}
+      saves={[]}
+      scenarioTitles={{}}
+    />;
   }
+
+  const location = scenario?.locations.find(loc => loc.id === gameState.currentLocationId);
 
   return (
     <GameLayout 
-      gameState={gameState}
-      scenario={scenario}
-      onUpdateState={updateGameState}
-      onSaveGame={saveGame}
-    />
+      currentTime={gameState.currentTime}
+      maxTime={gameState.maxTime}
+      locationName={location?.name || 'Unknown Location'}
+      clueCount={gameState.clues.length}
+      inventoryCount={gameState.inventory.length}
+      onSave={saveGame}
+      onShowMap={() => {}}
+      onShowClues={() => {}}
+      onShowInventory={() => {}}
+      onShowDialogue={() => {}}
+      hasActiveDialogue={false}
+    >
+      <div className="p-4">
+        <h2 className="text-2xl font-serif text-accent-gold mb-4">{location?.name}</h2>
+        <p className="text-noir-300">{location?.description}</p>
+      </div>
+    </GameLayout>
   );
 }
 
