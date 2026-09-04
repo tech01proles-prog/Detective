@@ -2,34 +2,91 @@ import { useState, useEffect } from 'react';
 import { MainMenu } from './components/MainMenu';
 import { GameLayout } from './components/GameLayout';
 import { GameState, Scenario, Clue } from './types';
-import { fetchScenarios, fetchScenario, loadGameSave } from './utils/api';
+import { fetchScenarios, fetchScenario, loadGameSave, importScenarioFile } from './utils/api';
 
 function App() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scenarios, setScenarios] = useState<Array<{ id: string; title: string; author: string; description: string }>>([]);
+  const [saves, setSaves] = useState<Array<{ id: string; scenario_id: string; player_name: string; updated_at: string }>>([]);
+  const [scenarioTitles, setScenarioTitles] = useState<Record<string, string>>({});
 
+  // Загрузка списка сценариев и сохранений
   useEffect(() => {
-    // Попытка загрузить последнее сохранение из localStorage
+    const loadData = async () => {
+      try {
+        const [scenariosData, savesData] = await Promise.all([
+          fetchScenarios(),
+          loadGameSave('list') // Получаем список сохранений
+        ]);
+        
+        setScenarios(scenariosData);
+        setSaves(savesData);
+        
+        // Создаем маппинг ID сценариев к названиям
+        const titles: Record<string, string> = {};
+        scenariosData.forEach((s: { id: string; title: string }) => {
+          titles[s.id] = s.title;
+        });
+        // Добавляем названия из сохранений
+        savesData.forEach((save: { scenario_id: string; scenario?: { title: string } }) => {
+          if (save.scenario && !titles[save.scenario_id]) {
+            titles[save.scenario_id] = save.scenario.title;
+          }
+        });
+        setScenarioTitles(titles);
+      } catch (err) {
+        console.error('Failed to load data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Попытка загрузить последнее сохранение из localStorage
+  useEffect(() => {
     const savedGameId = localStorage.getItem('lastSaveId');
-    if (savedGameId) {
+    if (savedGameId && !gameState) {
       loadGameSave(savedGameId)
         .then((saveData) => {
           setGameState(saveData.state as GameState);
           setScenario(saveData.scenario as Scenario);
-          setLoading(false);
         })
         .catch((err) => {
           console.warn('Failed to load saved game:', err);
-          setLoading(false);
         });
-    } else {
-      setLoading(false);
     }
   }, []);
 
-  const startNewGame = async (scenarioId: string) => {
+  const handleImportScenario = async (file: File) => {
+    try {
+      await importScenarioFile(file);
+      // После импорта обновляем список сценариев
+      const scenariosData = await fetchScenarios();
+      setScenarios(scenariosData);
+      
+      const titles: Record<string, string> = {};
+      scenariosData.forEach((s: { id: string; title: string }) => {
+        titles[s.id] = s.title;
+      });
+      setScenarioTitles(titles);
+      
+      alert('Scenario imported successfully!');
+    } catch (err) {
+      alert('Failed to import scenario.');
+      console.error(err);
+    }
+  };
+
+  const startNewGame = async (scenarioId?: string) => {
+    if (!scenarioId) {
+      alert('Please select a scenario from the list.');
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
@@ -115,12 +172,15 @@ function App() {
 
   if (!gameState) {
     return <MainMenu 
-      onNewGame={() => {}}
-      onLoadGame={() => {}}
-      onImportScenario={() => {}}
-      scenarios={[]}
-      saves={[]}
-      scenarioTitles={{}}
+      onNewGame={startNewGame}
+      onLoadGame={(saveId) => loadGameSave(saveId).then((saveData) => {
+        setGameState(saveData.state as GameState);
+        setScenario(saveData.scenario as Scenario);
+      })}
+      onImportScenario={handleImportScenario}
+      scenarios={scenarios}
+      saves={saves}
+      scenarioTitles={scenarioTitles}
     />;
   }
 
